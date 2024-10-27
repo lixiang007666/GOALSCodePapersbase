@@ -1,0 +1,59 @@
+batch_size: 12
+iters: 4000
+
+train_dataset:
+  type: Dataset
+  dataset_root: /home/aistudio/goals_data/Train
+  num_classes: 4
+  train_path: /home/aistudio/goals_data/Train/train_0.txt
+  val_path: /home/aistudio/goals_data/Train/val_0.txt
+  transforms:
+    - type: ResizeStepScaling
+      min_scale_factor: 0.75
+      max_scale_factor: 2.0
+      scale_step_size: 0.25
+    - type: RandomPaddingCrop
+      crop_size: [800, 600]
+    - type: RandomHorizontalFlip
+    - type: RandomDistort
+      brightness_range: 0.4
+      contrast_range: 0.4
+      saturation_range: 0.4
+    - type: Normalize
+      mean: [0.22619521, 0.22619521, 0.22619521]
+      std: [0.16060336, 0.16060336, 0.16060336]
+  mode: train
+
+val_dataset:
+  type: Dataset
+  dataset_root: /home/aistudio/goals_data/Train
+  num_classes: 4
+  train_path: /home/aistudio/goals_data/Train/train_0.txt
+  val_path: /home/aistudio/goals_data/Train/val_0.txt
+  transforms:
+    - type: Normalize
+      mean: [0.22619521, 0.22619521, 0.22619521]
+      std: [0.16060336, 0.16060336, 0.16060336]
+  mode: val
+
+model:
+  type: SegFormer_B0
+  num_classes: 4
+  pretrained: https://bj.bcebos.com/paddleseg/dygraph/cityscapes/segformer_b0_cityscapes_1024x1024_160k/model.pdparams
+
+optimizer:
+#   _inherited_: False
+  type: AdamW
+  beta1: 0.9
+  beta2: 0.999
+  weight_decay: 0.01
+
+lr_scheduler:
+  type: PolynomialDecay
+  learning_rate: 0.00006
+  power: 1
+
+loss:
+  types:
+    - type: CrossEntropyLoss
+  coef: [1]

@@ -1,0 +1,66 @@
+batch_size: 8
+iters: 4000
+
+train_dataset:
+  type: Dataset
+  dataset_root: /home/aistudio/goals_data/Train
+  num_classes: 4
+  train_path: /home/aistudio/goals_data/Train/train_0.txt
+  val_path: /home/aistudio/goals_data/Train/val_0.txt
+  transforms:
+    - type: ResizeStepScaling
+      min_scale_factor: 0.75
+      max_scale_factor: 2.0
+      scale_step_size: 0.25
+    - type: RandomPaddingCrop
+      crop_size: [800, 576]
+    - type: RandomHorizontalFlip
+    - type: RandomDistort
+      brightness_range: 0.4
+      contrast_range: 0.4
+      saturation_range: 0.4
+    # - type: VerticalShift
+    #   max_range: 200
+    - type: Normalize
+      mean: [0.22619521, 0.22619521, 0.22619521]
+      std: [0.16060336, 0.16060336, 0.16060336]
+  mode: train
+
+val_dataset:
+  type: Dataset
+  dataset_root: /home/aistudio/goals_data/Train
+  num_classes: 4
+  train_path: /home/aistudio/goals_data/Train/train_0.txt
+  val_path: /home/aistudio/goals_data/Train/val_0.txt
+  transforms:
+    - type: Normalize
+      mean: [0.22619521, 0.22619521, 0.22619521]
+      std: [0.16060336, 0.16060336, 0.16060336]
+  mode: val
+
+
+optimizer:
+  type: sgd
+  momentum: 0.9
+  weight_decay: 4.0e-5
+
+lr_scheduler:
+  type: PolynomialDecay
+  learning_rate: 0.01
+  end_lr: 0
+  power: 0.9
+
+loss:
+  types:
+    # - type: DiceLoss
+    - type: OhemCrossEntropyLoss
+      label_smooth: True
+      # num_class: 4
+  coef: [1]
+
+model:
+  type: UNetPlusPlus
+  num_classes: 4
+  in_channels: 3
+  use_deconv: False
+  pretrained: Null
